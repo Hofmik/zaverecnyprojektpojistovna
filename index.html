@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Přehled Pojištěnců</title>
+
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<h1>Přehled Pojištěnců</h1>
+	
+	<div class="container1">
+		<table class="table">
+			<thead>
+				<tr>
+					<th scope="col">ID</th>
+					<th scope="col">Jméno</th>
+					<th scope="col">Příjmení</th>
+					<th scope="col">Věk</th>
+					<th scope="col">Telefonní číslo</th>
+				</tr>
+			</thead>
+			<tbody id="persons-table">
+				
+			</tbody>
+		</table>
+	</div>
+
+
+	<div class="container2">
+		
+		<!-- Formulář pro vytvoření pojištěnce -->
+		<form id="create-form">
+			<h2>Vytvořit Pojištěnce</h2>
+			<label for="create-first-name">Jméno:</label>
+			<input type="text" id="create-first-name"><br>
+			<label for="create-last-name">Příjmení:</label>
+			<input type="text" id="create-last-name"><br>
+			<label for="create-age">Věk:</label>
+			<input type="text" id="create-age"><br>
+			<label for="create-phone-number">Telefonní číslo:</label>
+			<input type="text" id="create-phone-number"><br>
+			<button type="submit">Vytvořit</button>
+		</form>
+		
+		
+		
+		<!-- Formulář pro úpravu pojištěnce -->
+		<form id="update-form">
+			<h2>Upravit pojištěnce pomocí ID</h2>
+			<label for="update-id">ID:</label>
+			<input type="text" id="update-id"><br>
+			<label for="update-first-name">Jméno:</label>
+			<input type="text" id="update-first-name"><br>
+			<label for="update-last-name">Příjmení:</label>
+			<input type="text" id="update-last-name"><br>
+			<label for="update-age">Věk:</label>
+			<input type="text" id="update-age"><br>
+			<label for="update-phone-number">Telefonní číslo:</label>
+			<input type="text" id="update-phone-number"><br/>
+			<button type="submit">Upravit</button>
+		</form>
+	</div>
+
+
+	
+	
+	
+	<script>
+		const createForm = document.getElementById('create-form');
+		const updateForm = document.getElementById('update-form');
+		const personsTable = document.getElementById('persons-table');
+
+		function fetchPersons() {
+			fetch('pojistenec.php', {
+				method: 'GET'
+			})
+			.then(res => res.json())
+			.then(persons => {
+				let rows = '';
+				persons.forEach(person => {
+					rows += `
+						<tr>
+							<td>${person.id}</td>
+							<td>${person.fname}</td>
+							<td>${person.lname}</td>
+							<td>${person.age}</td>
+							<td>${person.pnumber}</td>
+						</tr>
+					`;
+				});
+				
+					personsTable.innerHTML = rows;
+			}
+			);
+		}
+
+		// přijmutí požadavku pro vytvoření pojištěnce
+		createForm.addEventListener('submit', e => {
+			e.preventDefault();
+			
+			// kontrola vstupních dat
+			const firstName = document.getElementById('create-first-name').value;
+			const lastName = document.getElementById('create-last-name').value;
+			const age = document.getElementById('create-age').value;
+			const phoneNumber = document.getElementById('create-phone-number').value;
+			
+			// poslaní POST požadavku
+			fetch('pojistenec.php', {
+				method: 'POST',
+				body: JSON.stringify({first_name: firstName , last_name: lastName , age:age, phone_number:phoneNumber })
+			})
+			.then(response => response.text())
+			.then(data => fetchPersons())
+			.catch(error => console.error(error));
+		});
+		
+		// přijmutí požadavku pro úpravu pojištěnce
+		updateForm.addEventListener('submit', e => {
+			e.preventDefault();
+			
+			// kontrola vstupních dat
+			const id = document.getElementById('update-id').value;
+			const firstName = document.getElementById('update-first-name').value;
+			const lastName = document.getElementById('update-last-name').value;
+			const age = document.getElementById('update-age').value;
+			const phoneNumber = document.getElementById('update-phone-number').value;
+			
+			// poslaní PUT požadavku s daty
+			fetch('pojistenec.php', {
+				method: 'PUT',
+				body: JSON.stringify({id: id ,first_name: firstName , last_name: lastName , age:age, phone_number:phoneNumber })
+			})
+			.then(res => fetchPersons())
+			.catch(error => console.error(error));
+
+		});
+
+
+		fetchPersons()
+	</script>
+</body>
+</html>
